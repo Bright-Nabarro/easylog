@@ -7,6 +7,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory("src")
+add_subdirectory("test")
+
+
 
 add_custom_target(cp_compile_commands ALL
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different

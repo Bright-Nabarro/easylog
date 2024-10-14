@@ -19,10 +19,11 @@ namespace yq
 
 enum class log_level
 {
-	info = 0,
-	warning,
-	error,
-	fatal
+    info = 0,
+    warn,
+    debug,
+    error,
+    fatal
 };
 
 [[nodiscard]] 
@@ -32,8 +33,10 @@ constexpr auto log_level_to_string(log_level level) -> std::string
 	{
 	case log_level::info:
 		return "Info";
-	case log_level::warning:
+	case log_level::warn:
 		return "Warning";
+	case log_level::debug:
+		return "Debug";
 	case log_level::error:
 		return "Error";
 	case log_level::fatal:
@@ -41,7 +44,6 @@ constexpr auto log_level_to_string(log_level level) -> std::string
 	default:
 		return "Unkown";
 	}
-
 }
 
 /**
@@ -212,7 +214,7 @@ private:
 	void push_msg(std::unique_ptr<base_log_msg> msg)
 	{
 		std::lock_guard lock { m_mtx };
-		m_msg_que.push(std::ref(msg));
+		m_msg_que.push(std::move(msg));
 		m_cond.notify_one();
 	}
 
@@ -263,7 +265,76 @@ private:
 	std::thread m_thd;
 };
 
+#define yq_info(fmt, ...)                                                      \
+    do                                                                         \
+    {                                                                          \
+        instance().log(log_level::info, fmt, __VA_ARGS__);                     \
+    } while (false)
 
+#define yq_info_loc(fmt, ...)                                                  \
+    do                                                                         \
+    {                                                                          \
+        instance().log(log_level::info, std::source_location::current(), fmt,  \
+                       __VA_ARGS__);                                           \
+    } while (false)
+
+#define yq_warn(fmt, ...)                                                      \
+    do                                                                         \
+    {                                                                          \
+        instance().log(log_level::warn, fmt, __VA_ARGS__);                     \
+    } while (false)
+
+#define yq_warn_loc(fmt, ...)                                                  \
+    do                                                                         \
+    {                                                                          \
+        instance().log(log_level::warn, std::source_location::current(), fmt,  \
+                       __VA_ARGS__);                                           \
+    } while (false)
+
+#ifndef DEBUG
+#define yq_debug(fmt, ...)                                                     \
+    do                                                                         \
+    {                                                                          \
+        instance().log(log_level::debug, fmt, __VA_ARGS__);                    \
+    } while (false)
+
+#define yq_debug_loc(fmt, ...)                                                 \
+    do                                                                         \
+    {                                                                          \
+        instance().log(log_level::debug, std::source_location::current(), fmt, \
+                       __VA_ARGS__);                                           \
+    } while (false)
+#else
+#define yq_debug(fmt, ...)
+#define yq_debug_loc(fmt, ...)
+#endif
+
+#define yq_error(fmt, ...)                                                     \
+    do                                                                         \
+    {                                                                          \
+        instance().log(log_level::error, fmt, __VA_ARGS__);                    \
+    } while (false)
+
+#define yq_error_loc(fmt, ...)                                                 \
+    do                                                                         \
+    {                                                                          \
+        instance().log(log_level::error, std::source_location::current(), fmt, \
+                       __VA_ARGS__);                                           \
+    } while (false)
+
+
+#define yq_fatal(fmt, ...)                                                     \
+    do                                                                         \
+    {                                                                          \
+        instance().log(log_level::fatal, fmt, __VA_ARGS__);                    \
+    } while (false)
+
+#define yq_fatal_loc(fmt, ...)                                                 \
+    do                                                                         \
+    {                                                                          \
+        instance().log(log_level::fatal, std::source_location::current(), fmt, \
+                       __VA_ARGS__);                                           \
+    } while (false)
 
 }	//namespace yq
 
