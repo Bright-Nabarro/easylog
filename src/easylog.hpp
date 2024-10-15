@@ -134,13 +134,29 @@ private:
 	const std::tuple<Args...> m_args;
 };
 
-class logger final
+class base_logger
 {
-	friend auto logger_instance() -> logger&;
 public:
-	void set_output_time(bool enable)
+	base_logger():
+		m_os 		{ std::ref(std::cout) },
+		m_msg_que 	{},
+		m_running 	{ true },
+		m_mtx 		{},
+		m_cond 		{},
+		m_thd 		{ &base_logger::thd_call_back, this }
 	{
-		m_enable_time = enable;
+		if (!m_os)
+			throw log_construct_error { std::format("Logger stream error") };
+
+		//log(log_level::info, "=== logger<{:p}> start ===", reinterpret_cast<void*>(this));
+	}
+
+	virtual ~base_logger()
+	{
+		//log(log_level::info, "=== logger<{:p}> destoried ===", reinterpret_cast<void*>(this));
+		m_running.store(false, std::memory_order_release);
+		if (m_thd.joinable())
+			m_thd.join();
 	}
 
 	void set_output_stream(std::ostream& os)
@@ -148,69 +164,13 @@ public:
 		m_os = os;
 	}
 
-	template<typename... Args>
-	void log(log_level level, std::format_string<Args...> fmt, Args&& ... args)
+	static auto instance() -> base_logger&
 	{
-		// std::format_string may unable forward through make_unique
-		std::unique_ptr<base_log_msg> p_msg {
-			new log_msg<Args...>(level, get_time(), std::nullopt, fmt, std::forward<Args>(args)...)
-		};
-		push_msg(std::move(p_msg));
-		check_fatal(level);
-	}
-
-	template<typename... Args>
-	void log(log_level level, std::source_location&& location, std::format_string<Args...> fmt, Args&& ... args)
-	{
-		// std::format_string may unable forward through make_unique
-		std::unique_ptr<base_log_msg> p_msg {
-			new log_msg<Args...>(level, get_time(), std::move(location), fmt, std::forward<Args>(args)...)
-		};
-		push_msg(std::move(p_msg));
-		check_fatal(level);
-
-	}
-
-	static auto instance() -> logger&
-	{
-		static logger instance;
+		static base_logger instance;
 
 		return instance;
 	}
 
-private:
-	logger():
-		m_enable_time { false },
-		m_os 		{ std::ref(std::cout) },
-		m_msg_que 	{},
-		m_running 	{ true },
-		m_mtx 		{},
-		m_cond 		{},
-		m_thd 		{ &logger::thd_call_back, this }
-	{
-		if (!m_os)
-			throw log_construct_error { std::format("Logger stream error") };
-
-		log(log_level::info, "=== logger<{:p}> start ===", reinterpret_cast<void*>(this));
-	}
-
-	~logger()
-	{
-		log(log_level::info, "=== logger<{:p}> destoried ===", reinterpret_cast<void*>(this));
-		m_running.store(false, std::memory_order_release);
-		if (m_thd.joinable())
-			m_thd.join();
-	}
-
-	auto get_time() const -> std::optional<std::chrono::system_clock::time_point>
-	{
-		if (m_enable_time)
-		{
-			return std::chrono::system_clock::now();
-		}
-		return std::nullopt;
-	}
-	
 	void push_msg(std::unique_ptr<base_log_msg> msg)
 	{
 		std::lock_guard lock { m_mtx };
@@ -228,6 +188,7 @@ private:
 		}
 	}
 
+private:
 	void thd_call_back()
 	{
 		while(m_running.load(std::memory_order_acquire))
@@ -247,6 +208,7 @@ private:
 
 			if (m_os)
 				(m_os->get())<<msg->log_string()<<'\n';
+
 			else if(msg->get_level() == log_level::error
 				|| msg->get_level() == log_level::fatal)
 				std::cerr<<msg->log_string()<<'\n';	
@@ -254,16 +216,74 @@ private:
 				std::cout<<msg->log_string()<<'\n';
 		}
 	}
-
+	
 private:
-	bool m_enable_time;
-	std::optional<std::reference_wrapper<std::ostream>> m_os;
 	std::queue<std::unique_ptr<base_log_msg>> m_msg_que;
 	std::atomic<bool> m_running;
 	std::mutex m_mtx;
 	std::condition_variable m_cond;
 	std::thread m_thd;
 };
+
+
+template<log_level level>
+class logger
+{
+public:
+	template<typename... Args>
+	void log(std::format_string<Args...> fmt, Args&& ... args)
+	{
+		// std::format_string may unable forward through make_unique
+		std::unique_ptr<base_log_msg> p_msg {
+			new log_msg<Args...>(level, get_time(), std::nullopt, fmt, std::forward<Args>(args)...)
+		};
+		base_logger::instance().push_msg(std::move(p_msg));
+		base_logger::instance().check_fatal(level);
+	}
+
+	template<typename... Args>
+	void log(std::source_location&& location, std::format_string<Args...> fmt, Args&& ... args)
+	{
+		// std::format_string may unable forward through make_unique
+		std::unique_ptr<base_log_msg> p_msg {
+			new log_msg<Args...>(level, get_time(), std::move(location), fmt, std::forward<Args>(args)...)
+		};
+		base_logger::instance().push_msg(std::move(p_msg));
+		base_logger::instance().check_fatal(level);
+	}
+
+	void set_enable_time(bool enable)
+	{
+		m_enable_time = enable;
+	}
+
+	void set_output_stream(std::ostream& os)
+	{
+		m_os = os;
+	}
+
+private:
+	auto get_time() const -> std::optional<std::chrono::system_clock::time_point>
+	{
+		if (m_enable_time)
+		{
+			return std::chrono::system_clock::now();
+		}
+		return std::nullopt;
+	}
+
+	std::optional<std::reference_wrapper<std::ostream>> m_os;
+	bool m_enable_time;
+};
+
+template<typename... Args>
+void info(std::format_string<Args...> fmt, Args&& ... args)
+{
+	logger<log_level::info> lg;
+	lg.set_enable_time(true);
+	lg.log(fmt, std::forward<Args>(args)...);
+}
+
 
 #define yq_info(fmt, ...)                                                      \
     do                                                                         \
