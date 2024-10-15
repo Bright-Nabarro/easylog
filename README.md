@@ -1,2 +1,2 @@
 # easylog
-A simple logger header file library written in C++20
+A simple logger header-only library written in C++20

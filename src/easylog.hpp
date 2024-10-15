@@ -63,31 +63,47 @@ public:
 class base_log_msg
 {
 public:
-	base_log_msg(log_level level):
-		m_level { level }
-	{ }
-	virtual ~base_log_msg() = default;
+    base_log_msg(log_level level, bool enable_flush = false,
+                 std::optional<std::reference_wrapper<std::ostream>> os = {})
+        : m_level{level}, m_enable_flush{enable_flush}, m_os{os}
+    { }
+
+    virtual ~base_log_msg() = default;
 	virtual auto log_string() const -> std::string = 0;
 	virtual auto get_level() const -> log_level
 	{
 		return m_level;
 	}
+	virtual auto get_os() const -> std::optional<std::reference_wrapper<std::ostream>>
+	{
+		return m_os;
+	}
+	virtual auto enable_flush() const -> bool
+	{
+		return m_enable_flush;
+	}
 private:
 	log_level m_level;
+	bool m_enable_flush;
+	std::optional<std::reference_wrapper<std::ostream>> m_os;
 };
 
 template<typename... Args>
 class log_msg: public base_log_msg
 {	
 public:
-	log_msg(log_level level, std::optional<std::chrono::system_clock::time_point> time,
-			std::optional<std::source_location> location, std::format_string<Args...> fmt,
+	log_msg(log_level level,
+			bool enable_flush,
+			std::optional<std::reference_wrapper<std::ostream>> os,
+			std::optional<std::chrono::system_clock::time_point> time,
+			std::optional<std::source_location> location,
+			std::format_string<Args...> fmt,
 			Args&& ... args):
-		base_log_msg { level },
+		base_log_msg { level, enable_flush, os },
 		m_time { time },
 		m_location { location },
 		m_fmt { fmt },
-		m_args { std::make_tuple(args...) }
+		m_args { std::make_tuple(std::forward<Args>(args)...) }
 	{ }
 	
 	auto log_string() const -> std::string override
@@ -131,23 +147,20 @@ private:
 	const std::optional<std::chrono::system_clock::time_point> m_time;
 	const std::optional<std::source_location> m_location;
 	const std::format_string<Args...> m_fmt;
-	const std::tuple<Args...> m_args;
+	const std::tuple<std::decay_t<Args>...> m_args;
 };
 
 class base_logger
 {
 public:
 	base_logger():
-		m_os 		{ std::ref(std::cout) },
 		m_msg_que 	{},
 		m_running 	{ true },
 		m_mtx 		{},
 		m_cond 		{},
 		m_thd 		{ &base_logger::thd_call_back, this }
 	{
-		if (!m_os)
-			throw log_construct_error { std::format("Logger stream error") };
-
+		
 		//log(log_level::info, "=== logger<{:p}> start ===", reinterpret_cast<void*>(this));
 	}
 
@@ -157,11 +170,6 @@ public:
 		m_running.store(false, std::memory_order_release);
 		if (m_thd.joinable())
 			m_thd.join();
-	}
-
-	void set_output_stream(std::ostream& os)
-	{
-		m_os = os;
 	}
 
 	static auto instance() -> base_logger&
@@ -199,21 +207,31 @@ private:
 			});
 			
 			if (m_running.load(std::memory_order_relaxed)
-			 || m_msg_que.empty())
+			 && m_msg_que.empty())
 				break;
 			
 			auto msg = std::move(m_msg_que.front());
 			m_msg_que.pop();
 			lock.unlock();
 
-			if (m_os)
-				(m_os->get())<<msg->log_string()<<'\n';
+			std::ostream* os = nullptr;
+			if (msg->get_os())
+			{
+				os = &msg->get_os()->get();
+				(msg->get_os()->get())<<msg->log_string();
+			}
 
 			else if(msg->get_level() == log_level::error
 				|| msg->get_level() == log_level::fatal)
-				std::cerr<<msg->log_string()<<'\n';	
+				os = &std::cerr;
 			else
-				std::cout<<msg->log_string()<<'\n';
+				os = &std::cout;
+
+			(*os)<<msg->log_string();
+			if (msg->enable_flush())
+				(*os)<<std::endl;
+			else
+				(*os)<<'\n';
 		}
 	}
 	
@@ -230,37 +248,80 @@ template<log_level level>
 class logger
 {
 public:
-	template<typename... Args>
-	void log(std::format_string<Args...> fmt, Args&& ... args)
+	logger(bool enable_time = false, bool enable_flush = false,
+		   std::optional<std::reference_wrapper<std::ostream>> os = std::nullopt):
+		m_enable_time { enable_time },
+		m_os { os },
+		m_enable_flush { enable_flush }
 	{
-		// std::format_string may unable forward through make_unique
-		std::unique_ptr<base_log_msg> p_msg {
-			new log_msg<Args...>(level, get_time(), std::nullopt, fmt, std::forward<Args>(args)...)
-		};
-		base_logger::instance().push_msg(std::move(p_msg));
-		base_logger::instance().check_fatal(level);
+		if (m_os.has_value() && !m_os->get())
+			throw log_construct_error { std::format("Logger stream error") };
+	}
+  
+	template<typename... Args>
+	void operator()(std::format_string<Args...> fmt, Args&& ... args)
+	{
+		if constexpr (!enable_log)
+			return;
+		if constexpr (!enable_debug)
+			return;
+
+		push_msg(std::nullopt, fmt, std::forward<Args>(args)...);
 	}
 
 	template<typename... Args>
-	void log(std::source_location&& location, std::format_string<Args...> fmt, Args&& ... args)
+	void operator()(std::source_location&& location, std::format_string<Args...> fmt, Args&& ... args)
 	{
-		// std::format_string may unable forward through make_unique
-		std::unique_ptr<base_log_msg> p_msg {
-			new log_msg<Args...>(level, get_time(), std::move(location), fmt, std::forward<Args>(args)...)
-		};
-		base_logger::instance().push_msg(std::move(p_msg));
-		base_logger::instance().check_fatal(level);
-	}
+		if constexpr (!enable_log)
+			return;
+		if constexpr (!enable_debug)
+			return;
 
+		push_msg(std::move(location), fmt, std::forward<Args>(args)...);
+	}
+	
 	void set_enable_time(bool enable)
 	{
 		m_enable_time = enable;
+	}
+
+	void set_enable_flush(bool enable)
+	{
+		m_enable_flush = enable;
 	}
 
 	void set_output_stream(std::ostream& os)
 	{
 		m_os = os;
 	}
+
+private:
+	template<typename... Args>
+	void push_msg(std::optional<std::source_location> location, std::format_string<Args...> fmt, Args&& ... args)
+	{
+		std::unique_ptr<base_log_msg> p_msg {
+			new log_msg<Args...>(level, m_enable_flush, m_os,
+					get_time(), location, fmt, std::forward<Args>(args)...)
+		};
+		base_logger::instance().push_msg(std::move(p_msg));
+		base_logger::instance().check_fatal(level);
+	}
+
+	static constexpr bool enable_debug =
+	#ifdef NDEBUG
+		false
+	#else
+		true
+	#endif
+	;
+
+	static constexpr bool enable_log =
+	#ifdef NO_YQ_LOG
+		false
+	#else
+		true
+	#endif
+	;
 
 private:
 	auto get_time() const -> std::optional<std::chrono::system_clock::time_point>
@@ -272,91 +333,48 @@ private:
 		return std::nullopt;
 	}
 
-	std::optional<std::reference_wrapper<std::ostream>> m_os;
 	bool m_enable_time;
+	bool m_enable_flush;
+	std::optional<std::reference_wrapper<std::ostream>> m_os;
+};
+
+template<log_level level>
+struct _simple_log_invoker
+{
+	template<typename... Args>
+	void operator()(std::format_string<Args...> fmt, Args&& ... args)
+	{
+		log(fmt, std::forward<Args>(args)...);
+	}
+	
+	logger<level> log;
+};
+
+template<log_level level>
+struct _simple_log_invoker_loc
+{
+	template<typename... Args>
+	void operator()(std::format_string<Args...> fmt, Args&& ... args)
+	{
+		log(std::source_location::current(), fmt, std::forward<Args>(args)...);
+	}
+	
+	logger<level> log;
 };
 
 template<typename... Args>
 void info(std::format_string<Args...> fmt, Args&& ... args)
 {
-	logger<log_level::info> lg;
-	lg.set_enable_time(true);
-	lg.log(fmt, std::forward<Args>(args)...);
+	_simple_log_invoker<log_level::info>{}(fmt, std::forward<Args>(args)...);
 }
 
-
-#define yq_info(fmt, ...)                                                      \
-    do                                                                         \
-    {                                                                          \
-        instance().log(log_level::info, fmt, __VA_ARGS__);                     \
-    } while (false)
-
-#define yq_info_loc(fmt, ...)                                                  \
-    do                                                                         \
-    {                                                                          \
-        instance().log(log_level::info, std::source_location::current(), fmt,  \
-                       __VA_ARGS__);                                           \
-    } while (false)
-
-#define yq_warn(fmt, ...)                                                      \
-    do                                                                         \
-    {                                                                          \
-        instance().log(log_level::warn, fmt, __VA_ARGS__);                     \
-    } while (false)
-
-#define yq_warn_loc(fmt, ...)                                                  \
-    do                                                                         \
-    {                                                                          \
-        instance().log(log_level::warn, std::source_location::current(), fmt,  \
-                       __VA_ARGS__);                                           \
-    } while (false)
-
-#ifndef DEBUG
-#define yq_debug(fmt, ...)                                                     \
-    do                                                                         \
-    {                                                                          \
-        instance().log(log_level::debug, fmt, __VA_ARGS__);                    \
-    } while (false)
-
-#define yq_debug_loc(fmt, ...)                                                 \
-    do                                                                         \
-    {                                                                          \
-        instance().log(log_level::debug, std::source_location::current(), fmt, \
-                       __VA_ARGS__);                                           \
-    } while (false)
-#else
-#define yq_debug(fmt, ...)
-#define yq_debug_loc(fmt, ...)
-#endif
-
-#define yq_error(fmt, ...)                                                     \
-    do                                                                         \
-    {                                                                          \
-        instance().log(log_level::error, fmt, __VA_ARGS__);                    \
-    } while (false)
-
-#define yq_error_loc(fmt, ...)                                                 \
-    do                                                                         \
-    {                                                                          \
-        instance().log(log_level::error, std::source_location::current(), fmt, \
-                       __VA_ARGS__);                                           \
-    } while (false)
-
-
-#define yq_fatal(fmt, ...)                                                     \
-    do                                                                         \
-    {                                                                          \
-        instance().log(log_level::fatal, fmt, __VA_ARGS__);                    \
-    } while (false)
-
-#define yq_fatal_loc(fmt, ...)                                                 \
-    do                                                                         \
-    {                                                                          \
-        instance().log(log_level::fatal, std::source_location::current(), fmt, \
-                       __VA_ARGS__);                                           \
-    } while (false)
+template<typename... Args>
+void info_loc(std::format_string<Args...> fmt, Args&& ... args)
+{
+	_simple_log_invoker_loc<log_level::info>{}(fmt, std::forward<Args>(args)...);
+}
 
 }	//namespace yq
 
 #endif	//__EASYLOG_HPP__
-		
+

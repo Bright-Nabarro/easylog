@@ -16,6 +16,10 @@ set_target_properties(log_test PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
 )
 
-enable_testing()
+add_test(NAME LogTest COMMAND log_test)
 
-add_test(NAME log_test COMMAND bin/log_test)
+
+#include(GoogleTest)
+#gtest_discover_tests(log_test)
+
+
