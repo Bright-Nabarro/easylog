@@ -1,5 +1,5 @@
-#ifndef __EASYLOG_HPP__
-#define __EASYLOG_HPP__
+#ifndef __YQ_EASYLOG_HPP__
+#define __YQ_EASYLOG_HPP__
 
 #include <atomic>
 #include <chrono>
@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <string_view>
 #include <tuple>
+#include <cassert>
 
 namespace yq
 {
@@ -150,43 +151,33 @@ private:
 	const std::tuple<std::decay_t<Args>...> m_args;
 };
 
-class base_logger
+class base_logger_core
 {
 public:
-	base_logger():
-		m_msg_que 	{},
-		m_running 	{ true },
-		m_mtx 		{},
-		m_cond 		{},
-		m_thd 		{ &base_logger::thd_call_back, this }
-	{
-		
-		//log(log_level::info, "=== logger<{:p}> start ===", reinterpret_cast<void*>(this));
-	}
+	base_logger_core() = default;
+	virtual ~base_logger_core() = default;
+	virtual void push_msg(std::unique_ptr<base_log_msg> msg) = 0;
+	virtual void check_fatal(log_level level) = 0;
+};
 
-	virtual ~base_logger()
+class logger_core: public base_logger_core
+{
+public:
+	static auto instance() -> logger_core&
 	{
-		//log(log_level::info, "=== logger<{:p}> destoried ===", reinterpret_cast<void*>(this));
-		m_running.store(false, std::memory_order_release);
-		if (m_thd.joinable())
-			m_thd.join();
-	}
-
-	static auto instance() -> base_logger&
-	{
-		static base_logger instance;
+		static logger_core instance;
 
 		return instance;
 	}
 
-	void push_msg(std::unique_ptr<base_log_msg> msg)
+	void push_msg(std::unique_ptr<base_log_msg> msg) override
 	{
 		std::lock_guard lock { m_mtx };
 		m_msg_que.push(std::move(msg));
 		m_cond.notify_one();
 	}
 
-	void check_fatal(log_level level)
+	void check_fatal(log_level level) override
 	{
 		if (level == log_level::fatal)
 		{
@@ -196,17 +187,34 @@ public:
 		}
 	}
 
+protected:
+	logger_core():
+		m_msg_que 	{},
+		m_running 	{ true },
+		m_mtx 		{},
+		m_cond 		{},
+		m_thd 		{ &logger_core::thd_call_back, this }
+	{ }
+
+	virtual ~logger_core()
+	{
+		m_running.store(false, std::memory_order_release);
+		if (m_thd.joinable())
+			m_thd.join();
+		assert(m_msg_que.empty());
+	}
+
 private:
 	void thd_call_back()
 	{
-		while(m_running.load(std::memory_order_acquire))
+		while(true)
 		{
 			std::unique_lock lock { m_mtx };
 			m_cond.wait(lock, [this] {
 				return !m_msg_que.empty() || !m_running.load(std::memory_order_acquire);
 			});
 			
-			if (m_running.load(std::memory_order_relaxed)
+			if (!m_running.load(std::memory_order_acquire)
 			 && m_msg_que.empty())
 				break;
 			
@@ -248,8 +256,10 @@ template<log_level level>
 class logger
 {
 public:
-	logger(bool enable_time = false, bool enable_flush = false,
+	logger(base_logger_core& logger_instance = logger_core::instance(),
+		   bool enable_time = false, bool enable_flush = false,
 		   std::optional<std::reference_wrapper<std::ostream>> os = std::nullopt):
+		m_logger_instance { logger_instance },
 		m_enable_time { enable_time },
 		m_os { os },
 		m_enable_flush { enable_flush }
@@ -270,7 +280,7 @@ public:
 	}
 
 	template<typename... Args>
-	void operator()(std::source_location&& location, std::format_string<Args...> fmt, Args&& ... args)
+	void operator()(std::source_location location, std::format_string<Args...> fmt, Args&& ... args)
 	{
 		if constexpr (!enable_log)
 			return;
@@ -303,8 +313,8 @@ private:
 			new log_msg<Args...>(level, m_enable_flush, m_os,
 					get_time(), location, fmt, std::forward<Args>(args)...)
 		};
-		base_logger::instance().push_msg(std::move(p_msg));
-		base_logger::instance().check_fatal(level);
+		m_logger_instance.push_msg(std::move(p_msg));
+		m_logger_instance.check_fatal(level);
 	}
 
 	static constexpr bool enable_debug =
@@ -332,49 +342,103 @@ private:
 		}
 		return std::nullopt;
 	}
-
+	
+	base_logger_core& m_logger_instance;
 	bool m_enable_time;
 	bool m_enable_flush;
 	std::optional<std::reference_wrapper<std::ostream>> m_os;
 };
 
-template<log_level level>
-struct _simple_log_invoker
-{
-	template<typename... Args>
-	void operator()(std::format_string<Args...> fmt, Args&& ... args)
-	{
-		log(fmt, std::forward<Args>(args)...);
-	}
-	
-	logger<level> log;
-};
 
 template<log_level level>
-struct _simple_log_invoker_loc
+struct simple_log_invoker
 {
+	simple_log_invoker() = default;
 	template<typename... Args>
 	void operator()(std::format_string<Args...> fmt, Args&& ... args)
 	{
-		log(std::source_location::current(), fmt, std::forward<Args>(args)...);
+		m_log(fmt, std::forward<Args>(args)...);
+	}
+
+	template<typename... Args>
+	void operator()(const std::source_location& location,
+			std::format_string<Args...> fmt, Args&& ... args)
+	{
+		m_log(location, fmt, std::forward<Args>(args)...);
 	}
 	
-	logger<level> log;
+	logger<level> m_log;
 };
+
+
+[[nodiscard]] consteval
+auto loc(const std::source_location& location = std::source_location::current())
+	-> std::source_location
+{
+	return location;
+}
 
 template<typename... Args>
 void info(std::format_string<Args...> fmt, Args&& ... args)
 {
-	_simple_log_invoker<log_level::info>{}(fmt, std::forward<Args>(args)...);
+	simple_log_invoker<log_level::info>{}(fmt, std::forward<Args>(args)...);
 }
 
 template<typename... Args>
-void info_loc(std::format_string<Args...> fmt, Args&& ... args)
+void info(const std::source_location& location, std::format_string<Args...> fmt, Args&& ... args)
 {
-	_simple_log_invoker_loc<log_level::info>{}(fmt, std::forward<Args>(args)...);
+	simple_log_invoker<log_level::info>{}(location, fmt, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void warn(std::format_string<Args...> fmt, Args&& ... args)
+{
+	simple_log_invoker<log_level::warn>{}(fmt, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void warn(const std::source_location& location, std::format_string<Args...> fmt, Args&& ... args)
+{
+	simple_log_invoker<log_level::warn>{}(location, fmt, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void debug(std::format_string<Args...> fmt, Args&& ... args)
+{
+	simple_log_invoker<log_level::debug>{}(fmt, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void debug(const std::source_location& location, std::format_string<Args...> fmt, Args&& ... args)
+{
+	simple_log_invoker<log_level::debug>{}(location, fmt, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void error(std::format_string<Args...> fmt, Args&& ... args)
+{
+	simple_log_invoker<log_level::error>{}(fmt, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void error(const std::source_location& location, std::format_string<Args...> fmt, Args&& ... args)
+{
+	simple_log_invoker<log_level::error>{}(location, fmt, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void fatal(std::format_string<Args...> fmt, Args&& ... args)
+{
+	simple_log_invoker<log_level::fatal>{}(fmt, std::forward<Args>(args)...);
+}
+
+template<typename... Args>
+void fatal(const std::source_location& location, std::format_string<Args...> fmt, Args&& ... args)
+{
+	simple_log_invoker<log_level::fatal>{}(location, fmt, std::forward<Args>(args)...);
 }
 
 }	//namespace yq
 
-#endif	//__EASYLOG_HPP__
+#endif	//__YQ_EASYLOG_HPP__
 
