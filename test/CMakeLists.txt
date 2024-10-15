@@ -7,9 +7,10 @@ endif()
 
 add_executable(log_test ${SRC})
 
-target_link_libraries(log_test
+target_link_libraries(log_test PRIVATE
 	easylog
-	gtest
+	GTest::gmock
+	GTest::gtest
 )
 
 set_target_properties(log_test PROPERTIES

@@ -3,3 +3,4 @@ build/
 compile_commands.json
 *.out
 bin/
+cpr_test.sh
