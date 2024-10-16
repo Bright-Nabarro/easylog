@@ -12,21 +12,14 @@
 namespace yq
 {
 
-
-class base_log_msg
+class base_msg
 {
 public:
-    base_log_msg(log_level level, bool enable_flush = false,
-                 std::optional<std::reference_wrapper<std::ostream>> os = {})
-        : m_level{level}, m_enable_flush{enable_flush}, m_os{os}
+	base_msg(std::optional<std::reference_wrapper<std::ostream>> os,
+				 bool enable_flush)
+        : m_os{os},  m_enable_flush{enable_flush}
     { }
-
-    virtual ~base_log_msg() = default;
 	virtual auto log_string() const -> std::string = 0;
-	virtual auto get_level() const -> log_level
-	{
-		return m_level;
-	}
 	virtual auto get_os() const -> std::optional<std::reference_wrapper<std::ostream>>
 	{
 		return m_os;
@@ -35,24 +28,41 @@ public:
 	{
 		return m_enable_flush;
 	}
+
 private:
-	log_level m_level;
-	bool m_enable_flush;
 	std::optional<std::reference_wrapper<std::ostream>> m_os;
+	bool m_enable_flush;
 };
 
-template<typename... Args>
-class log_msg: public base_log_msg
+template<log_level level>
+class base_log_msg
+{
+public:
+    
+    virtual ~base_log_msg() = default;
+	
+	auto get_level() const -> log_level;
+	static constexpr const char* level_str = log_level_to_string(level);
+private:
+};
+
+
+/**
+ * Specifize template type is necessary
+ * Compiler cannot deduce this automaticly
+ */
+template<log_level level, typename... Args>
+class log_msg: public base_log_msg<level>
 {	
 public:
-	log_msg(log_level level,
-			bool enable_flush,
+	log_msg(
 			std::optional<std::reference_wrapper<std::ostream>> os,
+			bool enable_flush,
 			std::optional<std::chrono::system_clock::time_point> time,
 			std::optional<std::source_location> location,
 			std::format_string<Args...> fmt,
 			Args&& ... args):
-		base_log_msg { level, enable_flush, os },
+		base_log_msg<level> {os, enable_flush},
 		m_time { time },
 		m_location { location },
 		m_fmt { fmt },
@@ -63,7 +73,8 @@ public:
 	{
 		std::stringstream ssm;
 		//log level
-		ssm<<std::format("{: <12} ", std::format("[{}]", log_level_to_string(get_level())));
+		ssm<<std::format("{: <12} ", std::format("[{}]",
+			log_level_to_string(base_log_msg<level>::get_level())));
 		
 		//time
 		if (m_time.has_value())
@@ -87,7 +98,6 @@ public:
 	}
 
 private:
-
 	template<std::size_t... Indices>
 	auto log_string_helper(std::index_sequence<Indices...>) const -> std::string
 	{

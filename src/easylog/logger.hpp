@@ -59,17 +59,19 @@ public:
 	}
 
 private:
+	using uptr_var_msg = base_logger_core::uptr_var_msg;
 	template<typename... Args>
 	void push_msg(std::optional<std::source_location> location, std::format_string<Args...> fmt, Args&& ... args)
 	{
-		// std::format_string may unable forward through std::make_unique()
-		std::unique_ptr<base_log_msg> p_msg {
-			new log_msg<Args...>(level, m_enable_flush, m_os,
-					get_time(), location, fmt, std::forward<Args>(args)...)
-		};
-		m_logger_instance.push_msg(std::move(p_msg));
-		m_logger_instance.check_fatal(level);
-	}
+		auto uptr_msg = std::make_unique<log_msg<level, Args...>>(
+                m_enable_flush, m_os, get_time(), location, fmt,
+                std::forward<Args>(args)...);
+
+		auto uptr = std::make_unique<uptr_var_msg>(std::move(uptr_msg));
+		
+        m_logger_instance.push_msg(std::move(uptr));
+        m_logger_instance.check_fatal(level);
+    }
 
 	static constexpr bool enable_debug =
 	#ifdef NDEBUG
@@ -107,3 +109,4 @@ private:
 }	//namespace yq
 
 #endif //__YQ_LOGGER_HPP__
+

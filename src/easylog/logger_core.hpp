@@ -7,6 +7,7 @@
 #include <memory>
 #include <queue>
 #include <thread>
+#include <variant>
 
 #include "log_msg.hpp"
 
@@ -17,12 +18,12 @@ namespace yq
 class base_logger_core
 {
 public:
+	using uptr_var_msg = log_level_variant_uptr_generator_t<base_log_msg>;
 	base_logger_core() = default;
 	virtual ~base_logger_core() = default;
-	virtual void push_msg(std::unique_ptr<base_log_msg> msg) = 0;
+	virtual void push_msg(std::unique_ptr<uptr_var_msg> msg) = 0;
 	virtual void check_fatal(log_level level) = 0;
 };
-
 
 class logger_core: public base_logger_core
 {
@@ -34,7 +35,7 @@ public:
 		return instance;
 	}
 
-	void push_msg(std::unique_ptr<base_log_msg> msg) override
+	void push_msg(std::unique_ptr<uptr_var_msg> msg) override
 	{
 		std::lock_guard lock { m_mtx };
 		m_msg_que.push(std::move(msg));
@@ -88,29 +89,34 @@ private:
 			 && m_msg_que.empty())
 				break;
 			
-			auto msg = std::move(m_msg_que.front());
+			std::unique_ptr<uptr_var_msg> v_msg = std::move(m_msg_que.front());
 			m_msg_que.pop();
 			lock.unlock();
+			
+			std::visit([](auto&& msg) {
+					msg.
+				}, *v_msg);
 
 			std::ostream* os = nullptr;
 			if (msg->get_os().has_value())
-				os = &msg->get_os()->get();
-			else if(msg->get_level() == log_level::error
-				|| msg->get_level() == log_level::fatal)
-				os = &std::cerr;
-			else
-				os = &std::cout;
 
-			(*os)<<msg->log_string();
-			if (msg->enable_flush())
-				(*os)<<std::endl;
-			else
-				(*os)<<'\n';
+		//		os = &msg->get_os()->get();
+		//	else if(msg->get_level() == log_level::error
+		//		|| msg->get_level() == log_level::fatal)
+		//		os = &std::cerr;
+		//	else
+		//		os = &std::cout;
+
+		//	(*os)<<msg->log_string();
+		//	if (msg->enable_flush())
+		//		(*os)<<std::endl;
+		//	else
+		//		(*os)<<'\n';
 		}
 	}
 	
 private:
-	std::queue<std::unique_ptr<base_log_msg>> m_msg_que;
+	std::queue<std::unique_ptr<uptr_var_msg>> m_msg_que;
 	//donot use m_running.store(false) singlely
 	std::atomic<bool> m_running;
 	std::mutex m_mtx;

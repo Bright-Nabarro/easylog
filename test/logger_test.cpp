@@ -1,8 +1,8 @@
-#include <sstream>
-#include <array>
-#include "mocks/logger_core_mock.hpp"
-#include "gtest/gtest.h"
-#include "easylog.hpp"
+//#include <sstream>
+//#include <array>
+//#include "mocks/logger_core_mock.hpp"
+//#include "gtest/gtest.h"
+//#include "easylog.hpp"
 
 //TEST(logger_test, logger_basic_use)
 //{
