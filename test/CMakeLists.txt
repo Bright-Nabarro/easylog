@@ -17,6 +17,10 @@ set_target_properties(log_test PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
 )
 
+target_compile_options(log_test PRIVATE
+	-DUNIT_TEST
+)
+
 add_test(NAME LogTest COMMAND log_test)
 
 

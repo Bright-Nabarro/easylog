@@ -72,6 +72,13 @@ public:
 		base_logger_core::change_output(std::move(uptr_os));
 	}
 
+#ifdef UNIT_TEST
+	auto get_output_mtx() -> std::mutex&
+	{
+		return m_output_mtx;
+	}
+#endif
+
 protected:
 	logger_core():
 		m_msg_que 	{},
