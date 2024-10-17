@@ -15,8 +15,7 @@ public:
 	 * std::ostream os require sync_with_stdio(true)
 	 *
 	 */
-	logger(std::string_view sv = "",
-		   bool enable_time = false, bool enable_flush = false,
+	logger(bool enable_time = false, bool enable_flush = false,
 		   base_logger_core& logger_instance = logger_core::instance()):
 		m_enable_time { enable_time },
 		m_enable_flush { enable_flush },
@@ -56,8 +55,10 @@ public:
 		m_enable_flush = enable;
 	}
 
-	void chg_output_file(std::string_view file_path = "")
+	void change_output_file(std::string_view file_path = "")
 	{
+		auto os = std::make_unique<fstream_output_handler>(file_path);
+		m_logger_instance.change_output(std::move(os));
 	}
 
 private:

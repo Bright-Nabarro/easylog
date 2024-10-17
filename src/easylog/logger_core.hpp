@@ -3,13 +3,12 @@
 
 #include <cassert>
 #include <condition_variable>
-#include <iostream>
 #include <memory>
 #include <queue>
 #include <thread>
+#include "output_handler.hpp"
 
 #include "log_msg.hpp"
-
 
 namespace yq
 {
@@ -17,11 +16,26 @@ namespace yq
 class base_logger_core
 {
 public:
-	base_logger_core() = default;
+	base_logger_core():
+		// default std::cout
+		m_output 	{
+			std::make_unique<stream_output_handler<std::ostream>>()
+		}
+	{ }
 	virtual ~base_logger_core() = default;
 	virtual void push_msg(std::unique_ptr<base_log_msg> msg) = 0;
-	virtual void check_fatal(log_level level) = 0;
-	virtual void set_output_file(std::string_view file_path = "");
+	virtual void check_fatal(log_level level)
+	{
+		if (level == log_level::fatal)
+			throw log_fatal_error{};
+	}
+	virtual void change_output(std::unique_ptr<base_output_handler> uptr_os)
+	{
+		m_output = std::move(uptr_os);
+	}
+
+protected:
+	std::unique_ptr<base_output_handler> m_output;
 };
 
 
@@ -52,6 +66,12 @@ public:
 		}
 	}
 
+	void change_output(std::unique_ptr<base_output_handler> uptr_os) override
+	{
+		std::lock_guard lock { m_mtx };
+		base_logger_core::change_output(std::move(uptr_os));
+	}
+
 protected:
 	logger_core():
 		m_msg_que 	{},
@@ -78,6 +98,15 @@ private:
 
 	void thd_call_back()
 	{
+		auto write_to_output = [this](auto& msg)
+		{
+			std::lock_guard lock{ m_output_mtx };
+			m_output->write(msg->log_string());
+			m_output->line_break();
+			if (msg->enable_flush())
+				m_output->flush();
+		};
+
 		while(true)
 		{
 			std::unique_lock lock { m_mtx };
@@ -92,21 +121,8 @@ private:
 			auto msg = std::move(m_msg_que.front());
 			m_msg_que.pop();
 			lock.unlock();
-
-			//std::ostream* os = nullptr;
-			//if (msg->get_os().has_value())
-			//	os = &msg->get_os()->get();
-			//else if(msg->get_level() == log_level::error
-			//	|| msg->get_level() == log_level::fatal)
-			//	os = &std::cerr;
-			//else
-			//	os = &std::cout;
-
-			//(*os)<<msg->log_string();
-			//if (msg->enable_flush())
-			//	(*os)<<std::endl;
-			//else
-			//	(*os)<<'\n';
+			
+			write_to_output(msg);
 		}
 	}
 	
@@ -117,6 +133,7 @@ private:
 	std::mutex m_mtx;
 	std::condition_variable m_cond;
 	std::thread m_thd;
+	std::mutex m_output_mtx;
 };
 
 
