@@ -2,6 +2,8 @@
 #define __YQ_LOGGER_HPP__
 #include "logger_core.hpp"
 
+#include <string_view>
+
 namespace yq
 {
 
@@ -9,16 +11,17 @@ template<log_level level>
 class logger
 {
 public:
-	logger(std::optional<std::reference_wrapper<std::ostream>> os = std::nullopt,
+	/**
+	 * std::ostream os require sync_with_stdio(true)
+	 *
+	 */
+	logger(std::string_view sv = "",
 		   bool enable_time = false, bool enable_flush = false,
 		   base_logger_core& logger_instance = logger_core::instance()):
-		m_os { os },
 		m_enable_time { enable_time },
 		m_enable_flush { enable_flush },
 		m_logger_instance { logger_instance }
 	{
-		if (m_os.has_value() && !m_os->get())
-			throw log_construct_error { std::format("Logger stream error") };
 	}
   
 	template<typename... Args>
@@ -53,25 +56,25 @@ public:
 		m_enable_flush = enable;
 	}
 
-	void set_output_stream(std::ostream& os)
+	void chg_output_file(std::string_view file_path = "")
 	{
-		m_os = os;
 	}
 
 private:
-	template<typename... Args>
-	void push_msg(std::optional<std::source_location> location, std::format_string<Args...> fmt, Args&& ... args)
-	{
-		// std::format_string may unable forward through std::make_unique()
-		std::unique_ptr<base_log_msg> p_msg {
-			new log_msg<Args...>(level, m_enable_flush, m_os,
-					get_time(), location, fmt, std::forward<Args>(args)...)
-		};
-		m_logger_instance.push_msg(std::move(p_msg));
-		m_logger_instance.check_fatal(level);
-	}
+    template <typename... Args>
+    void push_msg(std::optional<std::source_location> location,
+                  std::format_string<Args...> fmt, Args&&... args)
+    {
+        // std::format_string may unable forward through std::make_unique()
+        auto p_msg = std::make_unique<log_msg<Args...>>(
+            level, m_enable_flush, get_time(), location, fmt,
+            std::forward<Args>(args)...);
 
-	static constexpr bool enable_debug =
+        m_logger_instance.push_msg(std::move(p_msg));
+        m_logger_instance.check_fatal(level);
+    }
+
+    static constexpr bool enable_debug =
 	#ifdef NDEBUG
 		false
 	#else
@@ -97,7 +100,6 @@ private:
 		return std::nullopt;
 	}
 	
-	std::optional<std::reference_wrapper<std::ostream>> m_os;
 	bool m_enable_time;
 	bool m_enable_flush;
 	base_logger_core& m_logger_instance;

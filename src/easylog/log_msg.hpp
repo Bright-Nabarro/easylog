@@ -12,13 +12,11 @@
 namespace yq
 {
 
-
 class base_log_msg
 {
 public:
-    base_log_msg(log_level level, bool enable_flush = false,
-                 std::optional<std::reference_wrapper<std::ostream>> os = {})
-        : m_level{level}, m_enable_flush{enable_flush}, m_os{os}
+    base_log_msg(log_level level, bool enable_flush = false)
+        : m_level{level}, m_enable_flush{enable_flush}
     { }
 
     virtual ~base_log_msg() = default;
@@ -27,10 +25,6 @@ public:
 	{
 		return m_level;
 	}
-	virtual auto get_os() const -> std::optional<std::reference_wrapper<std::ostream>>
-	{
-		return m_os;
-	}
 	virtual auto enable_flush() const -> bool
 	{
 		return m_enable_flush;
@@ -38,7 +32,6 @@ public:
 private:
 	log_level m_level;
 	bool m_enable_flush;
-	std::optional<std::reference_wrapper<std::ostream>> m_os;
 };
 
 template<typename... Args>
@@ -47,12 +40,11 @@ class log_msg: public base_log_msg
 public:
 	log_msg(log_level level,
 			bool enable_flush,
-			std::optional<std::reference_wrapper<std::ostream>> os,
 			std::optional<std::chrono::system_clock::time_point> time,
 			std::optional<std::source_location> location,
 			std::format_string<Args...> fmt,
 			Args&& ... args):
-		base_log_msg { level, enable_flush, os },
+		base_log_msg { level, enable_flush },
 		m_time { time },
 		m_location { location },
 		m_fmt { fmt },
@@ -63,13 +55,13 @@ public:
 	{
 		std::stringstream ssm;
 		//log level
-		ssm<<std::format("{: <12} ", std::format("[{}]", log_level_to_string(get_level())));
+		ssm<<std::format("{: <8} ", std::format("[{}]", log_level_to_string(get_level())));
 		
 		//time
 		if (m_time.has_value())
 		{
 			std::time_t log_time = std::chrono::system_clock::to_time_t(*m_time);
-			ssm<<std::put_time(std::localtime(&log_time), "%Y-%m-%d %H:%M:%S")<<' ';
+			ssm<<"[Time: "<<std::put_time(std::localtime(&log_time), "%Y-%m-%d %H:%M:%S")<<"] ";
 		}
 
 		//location
@@ -102,6 +94,15 @@ private:
 	const std::format_string<Args...> m_fmt;
 	const std::tuple<std::decay_t<Args>...> m_args;
 };
+
+template<typename... Args>
+log_msg(log_level level,
+			bool enable_flush,
+			std::optional<std::chrono::system_clock::time_point> time,
+			std::optional<std::source_location> location,
+			std::format_string<Args...> fmt,
+			Args&& ... args)
+-> log_msg<Args...>;
 
 }	//namespace yq
 

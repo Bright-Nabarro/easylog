@@ -21,6 +21,7 @@ public:
 	virtual ~base_logger_core() = default;
 	virtual void push_msg(std::unique_ptr<base_log_msg> msg) = 0;
 	virtual void check_fatal(log_level level) = 0;
+	virtual void set_output_file(std::string_view file_path = "");
 };
 
 
@@ -92,20 +93,20 @@ private:
 			m_msg_que.pop();
 			lock.unlock();
 
-			std::ostream* os = nullptr;
-			if (msg->get_os().has_value())
-				os = &msg->get_os()->get();
-			else if(msg->get_level() == log_level::error
-				|| msg->get_level() == log_level::fatal)
-				os = &std::cerr;
-			else
-				os = &std::cout;
+			//std::ostream* os = nullptr;
+			//if (msg->get_os().has_value())
+			//	os = &msg->get_os()->get();
+			//else if(msg->get_level() == log_level::error
+			//	|| msg->get_level() == log_level::fatal)
+			//	os = &std::cerr;
+			//else
+			//	os = &std::cout;
 
-			(*os)<<msg->log_string();
-			if (msg->enable_flush())
-				(*os)<<std::endl;
-			else
-				(*os)<<'\n';
+			//(*os)<<msg->log_string();
+			//if (msg->enable_flush())
+			//	(*os)<<std::endl;
+			//else
+			//	(*os)<<'\n';
 		}
 	}
 	
@@ -122,3 +123,5 @@ private:
 }	//namespace yq
 
 #endif //__YQ_LOGGER_CORE_HPP__
+
+
