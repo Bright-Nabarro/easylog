@@ -55,9 +55,20 @@ public:
 		m_enable_flush = enable;
 	}
 
-	void change_output_file(std::string_view file_path = "")
+	/// Store origin pointer with unique_ptr.get() may cause data race
+	void change_output(std::unique_ptr<base_output_handler> uptr_os)
 	{
-		auto os = std::make_unique<fstream_output_handler>(file_path);
+		m_logger_instance.change_output(std::move(uptr_os));
+	}
+
+	void change_output()
+	{
+		m_logger_instance.change_output();
+	}
+
+	void change_output_file(std::string_view sv)
+	{
+		auto os = std::make_unique<fstream_output_handler>(sv);
 		m_logger_instance.change_output(std::move(os));
 	}
 
@@ -105,7 +116,6 @@ private:
 	bool m_enable_flush;
 	base_logger_core& m_logger_instance;
 };
-
 
 }	//namespace yq
 

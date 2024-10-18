@@ -75,7 +75,7 @@ public:
         base_logger_core::change_output(std::move(uptr_os));
     }
 
-#ifdef UNIT_TEST
+#ifdef YQ_EASYLOG_UNIT_TEST
 	auto get_output_mtx() -> std::mutex&
 	{
 		return m_output_mtx;

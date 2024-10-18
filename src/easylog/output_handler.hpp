@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <format>
 
 namespace yq
 {
@@ -100,7 +101,8 @@ public:
 		contains_stream_output_handler { std::ofstream(sv.data()) }
 	{
 		if (!m_os)
-			throw std::runtime_error { "fstream construct error" };
+			throw std::runtime_error{std::format(
+				"fstream construct error with file_path {} ", sv.data())};
 	}
 };
 
@@ -115,7 +117,7 @@ public:
 
 	auto get_string() -> std::string
 	{
-		auto ret = m_os.str();
+		std::string ret = m_os.str();
 		m_os.str("");
 		return ret;
 	};

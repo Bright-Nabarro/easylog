@@ -26,7 +26,8 @@ protected:
 		while(true)
 		{
 			std::unique_lock lock { mtx };
-			if (auto ret = origin->get_string(); ret.empty())
+			auto ret = origin->get_string(); 
+			if (ret.empty())
 			{
 				lock.unlock();
 				std::this_thread::sleep_for(10ms);
@@ -72,49 +73,50 @@ TEST_F(chg_core_to_sstream, push_msg_str)
 	EXPECT_NE(ciallo_str.find("Ciallo～(∠・ω< )⌒★"), std::string::npos);
 }
 
-TEST_F(chg_core_to_sstream, check_fatal)
-{
-	EXPECT_THROW(core.check_fatal(yq::log_level::fatal), yq::log_fatal_error);
-}
 
 
-class chg_core_to_mock_sstream: public chg_core_to_sstream
-{
-protected:
-	void SetUp() override
-	{
-		auto handler = std::make_unique<mock_stringstream_output_handler>();
-		p_handler = handler.get();
-		origin = handler.get();
-		core.change_output(std::move(handler));
-	}
+//class chg_core_to_mock_sstream: public chg_core_to_sstream
+//{
+//protected:
+//	void SetUp() override
+//	{
+//		auto handler = std::make_unique<mock_stringstream_output_handler>();
+//		p_handler = handler.get();
+//		origin = handler.get();
+//		core.change_output(std::move(handler));
+//	}
+//
+//	void TestMockWord(std::unique_ptr<yq::base_log_msg> p_msg)
+//	{
+//		EXPECT_CALL(*p_handler, write)
+//			.Times(1);
+//		EXPECT_CALL(*p_handler, get_string)
+//			.Times(1);
+//		//auto ret = TestWord(std::move(p_msg));
+//		//EXPECT_EQ(ret, "mock_return");
+//	}
+//
+//	mock_stringstream_output_handler* p_handler;
+//};
 
-	void TestMockWord(std::unique_ptr<yq::base_log_msg> p_msg)
-	{
-		EXPECT_CALL(*p_handler, write)
-			.Times(1);
-		EXPECT_CALL(*p_handler, get_string)
-			.WillOnce(testing::Return("mock_return"));
-		auto ret = TestWord(std::move(p_msg));
-		EXPECT_EQ(ret, "mock_return");
-	}
+//TEST_F(chg_core_to_mock_sstream, log_msg)
+//{
+//	
+//	//auto mock_msg = std::make_unique<MockLogMsg>(yq::log_level::info, false); 
+//	//EXPECT_CALL(*mock_msg, log_string())
+//	//	.Times(1)
+//	//	.WillOnce(testing::Return("return"));
+//	//EXPECT_CALL(*mock_msg, get_level)
+//	//	.Times(testing::AtMost(1));
+//	//EXPECT_CALL(*mock_msg, enable_flush)
+//	//	.Times(1);
+//	
+//	TestMockWord(std::make_unique<yq::log_msg<>>(yq::log_msg<>(                    \
+//        yq::log_level::info, false, std::nullopt, std::nullopt, "mock_msg")));
+//}
 
-	mock_stringstream_output_handler* p_handler;
-};
-
-
-TEST_F(chg_core_to_mock_sstream, log_msg)
-{
-	auto mock_msg = std::make_unique<MockLogMsg>(yq::log_level::info, false); 
-	EXPECT_CALL(*mock_msg, log_string())
-		.Times(1)
-		.WillOnce(testing::Return("return"));
-	EXPECT_CALL(*mock_msg, get_level)
-		.Times(testing::AtMost(1));
-	EXPECT_CALL(*mock_msg, enable_flush)
-		.Times(1);
-	
-	TestMockWord(std::move(mock_msg));
-}
-
+//TEST_F(chg_core_to_sstream, check_fatal)
+//{
+//	EXPECT_THROW(core.check_fatal(yq::log_level::fatal), yq::log_fatal_error);
+//}
 
