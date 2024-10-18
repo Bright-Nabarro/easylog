@@ -116,12 +116,14 @@ public:
 	auto get_string() -> std::string
 	{
 		auto ret = m_os.str();
-		m_os.clear();
+		m_os.str("");
 		return ret;
 	};
+
 };
 
 }	// namespace yq
 
 #endif //__YQ_OUTPUT_HANDLER_HPP__
+
 

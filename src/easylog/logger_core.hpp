@@ -29,7 +29,8 @@ public:
 		if (level == log_level::fatal)
 			throw log_fatal_error{};
 	}
-	virtual void change_output(std::unique_ptr<base_output_handler> uptr_os)
+	virtual void change_output(std::unique_ptr<base_output_handler> uptr_os
+		= std::make_unique<stream_output_handler<std::ostream>>())
 	{
 		m_output = std::move(uptr_os);
 	}
@@ -66,11 +67,13 @@ public:
 		}
 	}
 
-	void change_output(std::unique_ptr<base_output_handler> uptr_os) override
-	{
-		std::lock_guard lock { m_mtx };
-		base_logger_core::change_output(std::move(uptr_os));
-	}
+    void change_output(
+        std::unique_ptr<base_output_handler> uptr_os =
+            std::make_unique<stream_output_handler<std::ostream>>()) override
+    {
+        std::lock_guard lock{m_mtx};
+        base_logger_core::change_output(std::move(uptr_os));
+    }
 
 #ifdef UNIT_TEST
 	auto get_output_mtx() -> std::mutex&

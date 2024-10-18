@@ -9,6 +9,7 @@ class mock_stringstream_output_handler:
 {
 public:
 	MOCK_METHOD(void, write, (std::string_view), (override));
+	MOCK_METHOD(std::string, get_string, (), ());
 };
 
 

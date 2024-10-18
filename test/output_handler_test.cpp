@@ -64,6 +64,8 @@ TEST(stringstream_output_handler, base)
 	handler.write("hello");
 	handler.line_break();
 	EXPECT_EQ(handler.get_string(), "hello\n");
+	handler.write("123321");
+	EXPECT_EQ(handler.get_string(), "123321");
 }
 
 TEST(stringstream_output_handler, polymorphism)
