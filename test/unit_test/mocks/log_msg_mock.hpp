@@ -1,7 +1,7 @@
 #pragma once
 
+#include <gmock/gmock.h>
 #include "easylog.hpp"
-#include "gmock/gmock.h"
 
 // MOCK_METHOD(return_type, method_name, (arg_types...), (specifiers...));
 class MockLogMsg: public yq::base_log_msg

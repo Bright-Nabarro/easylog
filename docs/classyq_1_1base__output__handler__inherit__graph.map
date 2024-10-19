@@ -1,0 +1,19 @@
+<map id="yq::base_output_handler" name="yq::base_output_handler">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,166,166,191"/>
+<area shape="rect" id="Node000002" href="$classyq_1_1stream__output__handler.html" title=" " alt="" coords="214,93,386,134"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,158,230,132,231,137,146,163"/>
+<area shape="rect" id="Node000008" href="$classyq_1_1stream__output__handler.html" title=" " alt="" coords="214,158,386,199"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="182,176,213,176,213,181,182,181"/>
+<area shape="rect" id="Node000009" href="$classyq_1_1stream__output__handler_3_01std_1_1ostream_01_4.html" title=" " alt="" coords="214,224,386,264"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="146,194,231,220,230,225,144,199"/>
+<area shape="rect" id="Node000003" href="$classyq_1_1contains__stream__output__handler.html" title=" " alt="" coords="439,5,581,61"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="368,84,438,58,440,63,370,89"/>
+<area shape="rect" id="Node000005" href="$classyq_1_1contains__stream__output__handler.html" title=" " alt="" coords="439,85,581,141"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="402,110,439,110,439,116,402,116"/>
+<area shape="rect" id="Node000007" href="$classyq_1_1contains__stream__output__handler.html" title=" " alt="" coords="434,165,586,206"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="376,136,449,162,448,167,375,141"/>
+<area shape="rect" id="Node000004" href="$classyq_1_1fstream__output__handler.html" title=" " alt="" coords="648,13,776,54"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="597,30,648,30,648,36,597,36"/>
+<area shape="rect" id="Node000006" href="$classyq_1_1stringstream__output__handler.html" title=" " alt="" coords="634,93,790,134"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="597,110,634,110,634,116,597,116"/>
+</map>

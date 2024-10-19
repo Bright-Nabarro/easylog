@@ -52,8 +52,10 @@ public:
 
 	void push_msg(std::unique_ptr<base_log_msg> msg) override
 	{
-		std::lock_guard lock { m_mtx };
-		m_msg_que.push(std::move(msg));
+		{
+			std::lock_guard lock { m_mtx };
+			m_msg_que.push(std::move(msg));
+		}
 		m_cond.notify_one();
 	}
 
@@ -71,7 +73,7 @@ public:
         std::unique_ptr<base_output_handler> uptr_os =
             std::make_unique<stream_output_handler<std::ostream>>()) override
     {
-        std::lock_guard lock{m_mtx};
+        std::lock_guard output_lock{m_output_mtx};
         base_logger_core::change_output(std::move(uptr_os));
     }
 
@@ -102,15 +104,15 @@ protected:
 private:
 	void end_running()
 	{
-		m_running.store(false, std::memory_order_release);
-		m_cond.notify_one();
+		m_running.store(false);
+		m_cond.notify_all();
 	}
 
 	void thd_call_back()
 	{
 		auto write_to_output = [this](auto& msg)
 		{
-			std::lock_guard lock{ m_output_mtx };
+			std::lock_guard output_lock{ m_output_mtx };
 			m_output->write(msg->log_string());
 			m_output->line_break();
 			if (msg->enable_flush())
@@ -121,10 +123,10 @@ private:
 		{
 			std::unique_lock lock { m_mtx };
 			m_cond.wait(lock, [this] {
-				return !m_msg_que.empty() || !m_running.load(std::memory_order_acquire);
+				return !m_msg_que.empty() || !m_running.load();
 			});
 			
-			if (!m_running.load(std::memory_order_acquire)
+			if (!m_running.load()
 			 && m_msg_que.empty())
 				break;
 			
@@ -142,13 +144,12 @@ private:
 	std::atomic<bool> m_running;
 	std::mutex m_mtx;
 	std::condition_variable m_cond;
-	std::thread m_thd;
 	std::mutex m_output_mtx;
+	std::thread m_thd;
 };
 
 
 }	//namespace yq
 
 #endif //__YQ_LOGGER_CORE_HPP__
-
 

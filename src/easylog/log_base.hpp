@@ -35,10 +35,15 @@ constexpr auto log_level_to_string(log_level level) -> const char*
 }
 
 /**
- * If passing log_level::fatal as log_level,
- * the logger::log function will throw this exception
+ * Do not catch `log_fatal_error`.
+ * These exceptions indicate irrecoverable errors
+ * and should be allowed to propagate naturally,
+ * leading to program termination.
+ * Catching these exceptions may lead to undefined
+ * behavior or incomplete resource cleanup.
  */
-class log_fatal_error: public std::exception { };
+class log_fatal_error
+{ };
 
 class log_construct_error: public std::runtime_error
 {

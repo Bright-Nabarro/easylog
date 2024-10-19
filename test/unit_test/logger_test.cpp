@@ -1,7 +1,7 @@
 #include <sstream>
 #include <array>
 #include "mocks/logger_core_mock.hpp"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include "easylog.hpp"
 
 class core_sync: public testing::Test

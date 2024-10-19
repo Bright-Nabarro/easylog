@@ -22,6 +22,17 @@ target_compile_options(log_test PRIVATE
 	-DYQ_EASYLOG_UNIT_TEST
 )
 
+option(static_check OFF)
+
+if (static_check)
+	include(clang_tidy)
+	add_clang_tidy(log_test)
+endif()
+
+include(coverage)
+set_coverage_build(log_test)
+add_coverage(log_test)
+
 #include(GoogleTest)
 #gtest_discover_tests(log_test)
 add_test(NAME unit_test COMMAND log_test)
