@@ -1,5 +1,6 @@
 # EasyLog
 A simple logger header-only library written in C++20
+[document](https://bright-nabarro.github.io/easylog/index.html)
 
 # TODO
 - [x] Add `CTAD` in template class which use format_string.
