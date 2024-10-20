@@ -1,3 +1,7 @@
+/**
+ * @file output_handler.hpp
+ * @brief Contains output handler components for managing various output streams.
+ */
 #ifndef __YQ_OUTPUT_HANDLER_HPP__
 #define __YQ_OUTPUT_HANDLER_HPP__
 #include <string_view>
@@ -16,12 +20,19 @@ class base_output_handler
 public:
 	virtual ~base_output_handler() = default;
 	virtual void write(std::string_view data) = 0;
+	/**
+     * @brief Write a line break to the output.
+     */
 	virtual void line_break() = 0;
 	virtual void flush() = 0;
 
 };
 
 
+/**
+ * @brief Concept to check if a type is derived from std::ostream and supports string output.
+ * @tparam T Type to check.
+ */
 template<typename T>
 concept ostream_derived = std::derived_from<T, std::ostream>
 	&& requires(T& t)

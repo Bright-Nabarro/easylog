@@ -1,3 +1,7 @@
+/**
+ * @file easylog.hpp
+ * @brief Contains all header files for easy import by users
+ */
 #ifndef __YQ_EASYLOG_HPP__
 #define __YQ_EASYLOG_HPP__
 
