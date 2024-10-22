@@ -1,7 +1,7 @@
 include(GNUInstallDirs)
 
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/easylog"
-	DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/easylog"
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/easylog"
+	DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 
 install(TARGETS easylog
