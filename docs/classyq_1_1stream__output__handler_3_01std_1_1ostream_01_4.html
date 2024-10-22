@@ -117,10 +117,13 @@ Collaboration diagram for yq::stream_output_handler&lt; std::ostream &gt;:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a53b14b0e78a54bec5027e0687124215b" id="r_a53b14b0e78a54bec5027e0687124215b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a53b14b0e78a54bec5027e0687124215b">write</a> (std::string_view data) override</td></tr>
+<tr class="memdesc:a53b14b0e78a54bec5027e0687124215b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display the data.  <br /></td></tr>
 <tr class="separator:a53b14b0e78a54bec5027e0687124215b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ac4d09dc2fe4375628a9e151a7ac1ab" id="r_a9ac4d09dc2fe4375628a9e151a7ac1ab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9ac4d09dc2fe4375628a9e151a7ac1ab">line_break</a> () override</td></tr>
+<tr class="memdesc:a9ac4d09dc2fe4375628a9e151a7ac1ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a line break to the output.  <br /></td></tr>
 <tr class="separator:a9ac4d09dc2fe4375628a9e151a7ac1ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b7791be23b4d74542d6f9edc2185a7a" id="r_a9b7791be23b4d74542d6f9edc2185a7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9b7791be23b4d74542d6f9edc2185a7a">flush</a> () override</td></tr>
+<tr class="memdesc:a9b7791be23b4d74542d6f9edc2185a7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flush buffer, like std::flush.  <br /></td></tr>
 <tr class="separator:a9b7791be23b4d74542d6f9edc2185a7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classyq_1_1base__output__handler"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classyq_1_1base__output__handler')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classyq_1_1base__output__handler.html">yq::base_output_handler</a></td></tr>
 </table>
@@ -148,7 +151,9 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classyq_1_1base__output__handler.html">yq::base_output_handler</a>.</p>
+<p>Flush buffer, like std::flush. </p>
+
+<p>Implements <a class="el" href="classyq_1_1base__output__handler.html#a9008cbe8b6f402f43a00bbfe742343d1">yq::base_output_handler</a>.</p>
 
 </div>
 </div>
@@ -175,7 +180,9 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classyq_1_1base__output__handler.html">yq::base_output_handler</a>.</p>
+<p>Write a line break to the output. </p>
+
+<p>Implements <a class="el" href="classyq_1_1base__output__handler.html#aadba95b4146facf55ca3a387399fdcb6">yq::base_output_handler</a>.</p>
 
 </div>
 </div>
@@ -202,12 +209,15 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Implements <a class="el" href="classyq_1_1base__output__handler.html">yq::base_output_handler</a>.</p>
+<p>Display the data. </p>
+<dl class="section note"><dt>Note</dt><dd>Invoking this method may not apply the changes immediately unless <code>flush</code> is called. </dd></dl>
+
+<p>Implements <a class="el" href="classyq_1_1base__output__handler.html#af6c8864fdf28e3efe50e1c3a7c39ff0c">yq::base_output_handler</a>.</p>
 
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>easylog/<a class="el" href="output__handler_8hpp_source.html">output_handler.hpp</a></li>
+<li>easylog/easylog/<a class="el" href="output__handler_8hpp_source.html">output_handler.hpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

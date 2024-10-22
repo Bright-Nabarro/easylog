@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['yq_3a_3adefault_5fconstructible_5fostream_0',['default_constructible_ostream',['../conceptyq_1_1default__constructible__ostream.html',1,'yq']]],
-  ['yq_3a_3aostream_5fderived_1',['ostream_derived',['../conceptyq_1_1ostream__derived.html',1,'yq']]]
+  ['output_20stream_0',['Use logger class ( Customize output stream )',['../index.html#autotoc_md3',1,'']]],
+  ['output_5fhandler_2ehpp_1',['output_handler.hpp',['../output__handler_8hpp.html',1,'']]]
 ];

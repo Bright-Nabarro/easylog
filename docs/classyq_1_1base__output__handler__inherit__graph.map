@@ -1,5 +1,5 @@
 <map id="yq::base_output_handler" name="yq::base_output_handler">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,166,166,191"/>
+<area shape="rect" id="Node000001" title="Contains an object(reference) for output, managed and synchronized by yq::logger_core." alt="" coords="5,166,166,191"/>
 <area shape="rect" id="Node000002" href="$classyq_1_1stream__output__handler.html" title=" " alt="" coords="214,93,386,134"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,158,230,132,231,137,146,163"/>
 <area shape="rect" id="Node000008" href="$classyq_1_1stream__output__handler.html" title=" " alt="" coords="214,158,386,199"/>

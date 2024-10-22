@@ -1,3 +1,8 @@
+/**
+ * @file log_base.hpp
+ * @brief Contains base components: enum, exception
+ */
+
 #ifndef __YQ_LOGGER_BASE_HPP__
 #define __YQ_LOGGER_BASE_HPP__
 #include <stdexcept>

@@ -1,0 +1,13 @@
+<map id="easylog/easylog/output_handler.hpp" name="easylog/easylog/output_handler.hpp">
+<area shape="rect" id="Node000001" title="Contains output handler components for managing various output streams." alt="" coords="9,5,163,46"/>
+<area shape="rect" id="Node000002" href="$logger__core_8hpp_source.html" title=" " alt="" coords="10,94,162,135"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,62,89,94,83,94,83,62"/>
+<area shape="rect" id="Node000003" href="$easylog_8hpp.html" title="Contains all header files for easy import by users." alt="" coords="5,345,143,371"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="66,149,51,183,46,229,51,275,62,315,72,344,67,345,56,316,46,276,41,229,46,182,61,147"/>
+<area shape="rect" id="Node000004" href="$logger_8hpp_source.html" title=" " alt="" coords="60,183,237,208"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="113,145,141,180,137,184,109,149"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="128,221,102,258,85,305,78,345,73,344,80,304,97,255,123,218"/>
+<area shape="rect" id="Node000005" href="$log__wrapper_8hpp_source.html" title=" " alt="" coords="111,256,245,297"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="161,222,173,255,168,257,156,224"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="142,309,92,347,88,342,139,304"/>
+</map>

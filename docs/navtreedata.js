@@ -25,7 +25,9 @@
 var NAVTREE =
 [
   [ "easylog", "index.html", [
-    [ "TODO", "index.html#autotoc_md1", null ],
+    [ "QuickStart", "index.html#autotoc_md1", null ],
+    [ "Install / Build", "index.html#autotoc_md4", null ],
+    [ "TODO", "index.html#autotoc_md5", null ],
     [ "Concepts", "concepts.html", "concepts" ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],

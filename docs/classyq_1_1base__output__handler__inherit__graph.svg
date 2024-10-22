@@ -11,7 +11,7 @@
 <!-- Node1 -->
 <g id="Node000001" class="node">
 <title>Node1</title>
-<g id="a_Node000001"><a xlink:title=" ">
+<g id="a_Node000001"><a xlink:title="Contains an object(reference) for output, managed and synchronized by yq::logger_core.">
 <polygon fill="#999999" stroke="#666666" points="120.25,-73.88 0,-73.88 0,-54.62 120.25,-54.62 120.25,-73.88"/>
 <text text-anchor="middle" x="60.12" y="-60.38" font-family="Helvetica,sans-Serif" font-size="10.00">yq::base_output_handler</text>
 </a>

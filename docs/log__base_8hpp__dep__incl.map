@@ -1,0 +1,17 @@
+<map id="easylog/easylog/log_base.hpp" name="easylog/easylog/log_base.hpp">
+<area shape="rect" id="Node000001" title="Contains base components: enum, exception." alt="" coords="5,5,140,46"/>
+<area shape="rect" id="Node000002" href="$easylog_8hpp.html" title="Contains all header files for easy import by users." alt="" coords="53,434,190,459"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="59,61,35,125,27,163,23,202,23,285,26,309,33,331,56,373,84,407,109,431,105,435,80,411,51,376,28,333,20,310,18,286,18,202,21,162,30,124,54,59"/>
+<area shape="rect" id="Node000003" href="$log__msg_8hpp_source.html" title=" " alt="" coords="57,94,192,135"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="94,58,115,92,110,95,90,61"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="110,150,99,183,94,219,93,257,99,329,110,391,121,432,116,434,105,392,93,330,88,257,89,219,94,182,105,148"/>
+<area shape="rect" id="Node000004" href="$logger__core_8hpp_source.html" title=" " alt="" coords="108,183,261,223"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="149,146,173,181,169,184,145,149"/>
+<area shape="poly" id="edge5_Node000004_Node000002" title=" " alt="" coords="166,238,150,272,138,318,130,364,125,433,119,433,125,363,132,317,145,270,161,236"/>
+<area shape="rect" id="Node000005" href="$logger_8hpp_source.html" title=" " alt="" coords="159,271,335,297"/>
+<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="211,234,240,269,235,272,207,237"/>
+<area shape="poly" id="edge7_Node000005_Node000002" title=" " alt="" coords="230,310,200,347,133,435,128,432,196,343,225,307"/>
+<area shape="rect" id="Node000006" href="$log__wrapper_8hpp_source.html" title=" " alt="" coords="209,345,344,386"/>
+<area shape="poly" id="edge8_Node000005_Node000006" title=" " alt="" coords="259,311,272,344,267,346,254,313"/>
+<area shape="poly" id="edge9_Node000006_Node000002" title=" " alt="" coords="226,395,147,436,144,431,223,391"/>
+</map>

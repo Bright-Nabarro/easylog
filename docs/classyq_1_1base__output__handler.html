@@ -103,6 +103,11 @@ $(function(){initNavTree('classyq_1_1base__output__handler.html',''); initResiza
   <div class="headertitle"><div class="title">yq::base_output_handler Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Contains an object(reference) for output, managed and synchronized by <a class="el" href="classyq_1_1logger__core.html">yq::logger_core</a>.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="output__handler_8hpp_source.html">output_handler.hpp</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for yq::base_output_handler:</div>
 <div class="dyncontent">
@@ -111,18 +116,109 @@ Inheritance diagram for yq::base_output_handler:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af6c8864fdf28e3efe50e1c3a7c39ff0c" id="r_af6c8864fdf28e3efe50e1c3a7c39ff0c"><td class="memItemLeft" align="right" valign="top"><a id="af6c8864fdf28e3efe50e1c3a7c39ff0c" name="af6c8864fdf28e3efe50e1c3a7c39ff0c"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>write</b> (std::string_view data)=0</td></tr>
+<tr class="memitem:af6c8864fdf28e3efe50e1c3a7c39ff0c" id="r_af6c8864fdf28e3efe50e1c3a7c39ff0c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af6c8864fdf28e3efe50e1c3a7c39ff0c">write</a> (std::string_view data)=0</td></tr>
+<tr class="memdesc:af6c8864fdf28e3efe50e1c3a7c39ff0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display the data.  <br /></td></tr>
 <tr class="separator:af6c8864fdf28e3efe50e1c3a7c39ff0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aadba95b4146facf55ca3a387399fdcb6" id="r_aadba95b4146facf55ca3a387399fdcb6"><td class="memItemLeft" align="right" valign="top"><a id="aadba95b4146facf55ca3a387399fdcb6" name="aadba95b4146facf55ca3a387399fdcb6"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>line_break</b> ()=0</td></tr>
+<tr class="memitem:aadba95b4146facf55ca3a387399fdcb6" id="r_aadba95b4146facf55ca3a387399fdcb6"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aadba95b4146facf55ca3a387399fdcb6">line_break</a> ()=0</td></tr>
+<tr class="memdesc:aadba95b4146facf55ca3a387399fdcb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a line break to the output.  <br /></td></tr>
 <tr class="separator:aadba95b4146facf55ca3a387399fdcb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9008cbe8b6f402f43a00bbfe742343d1" id="r_a9008cbe8b6f402f43a00bbfe742343d1"><td class="memItemLeft" align="right" valign="top"><a id="a9008cbe8b6f402f43a00bbfe742343d1" name="a9008cbe8b6f402f43a00bbfe742343d1"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>flush</b> ()=0</td></tr>
+<tr class="memitem:a9008cbe8b6f402f43a00bbfe742343d1" id="r_a9008cbe8b6f402f43a00bbfe742343d1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9008cbe8b6f402f43a00bbfe742343d1">flush</a> ()=0</td></tr>
+<tr class="memdesc:a9008cbe8b6f402f43a00bbfe742343d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flush buffer, like std::flush.  <br /></td></tr>
 <tr class="separator:a9008cbe8b6f402f43a00bbfe742343d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Contains an object(reference) for output, managed and synchronized by <a class="el" href="classyq_1_1logger__core.html">yq::logger_core</a>. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a9008cbe8b6f402f43a00bbfe742343d1" name="a9008cbe8b6f402f43a00bbfe742343d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9008cbe8b6f402f43a00bbfe742343d1">&#9670;&#160;</a></span>flush()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void yq::base_output_handler::flush </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Flush buffer, like std::flush. </p>
+
+<p>Implemented in <a class="el" href="classyq_1_1contains__stream__output__handler.html#a215028a3bafa99f98dc92c7191cdf7aa">yq::contains_stream_output_handler&lt; Os &gt;</a>, <a class="el" href="classyq_1_1contains__stream__output__handler.html#a215028a3bafa99f98dc92c7191cdf7aa">yq::contains_stream_output_handler&lt; std::ofstream &gt;</a>, <a class="el" href="classyq_1_1contains__stream__output__handler.html#a215028a3bafa99f98dc92c7191cdf7aa">yq::contains_stream_output_handler&lt; std::ostringstream &gt;</a>, and <a class="el" href="classyq_1_1stream__output__handler_3_01std_1_1ostream_01_4.html#a9b7791be23b4d74542d6f9edc2185a7a">yq::stream_output_handler&lt; std::ostream &gt;</a>.</p>
+
+</div>
+</div>
+<a id="aadba95b4146facf55ca3a387399fdcb6" name="aadba95b4146facf55ca3a387399fdcb6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aadba95b4146facf55ca3a387399fdcb6">&#9670;&#160;</a></span>line_break()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void yq::base_output_handler::line_break </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Write a line break to the output. </p>
+
+<p>Implemented in <a class="el" href="classyq_1_1contains__stream__output__handler.html#a76b6add8764ea2f4f4bad81f5278f0a2">yq::contains_stream_output_handler&lt; Os &gt;</a>, <a class="el" href="classyq_1_1contains__stream__output__handler.html#a76b6add8764ea2f4f4bad81f5278f0a2">yq::contains_stream_output_handler&lt; std::ofstream &gt;</a>, <a class="el" href="classyq_1_1contains__stream__output__handler.html#a76b6add8764ea2f4f4bad81f5278f0a2">yq::contains_stream_output_handler&lt; std::ostringstream &gt;</a>, and <a class="el" href="classyq_1_1stream__output__handler_3_01std_1_1ostream_01_4.html#a9ac4d09dc2fe4375628a9e151a7ac1ab">yq::stream_output_handler&lt; std::ostream &gt;</a>.</p>
+
+</div>
+</div>
+<a id="af6c8864fdf28e3efe50e1c3a7c39ff0c" name="af6c8864fdf28e3efe50e1c3a7c39ff0c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6c8864fdf28e3efe50e1c3a7c39ff0c">&#9670;&#160;</a></span>write()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void yq::base_output_handler::write </td>
+          <td>(</td>
+          <td class="paramtype">std::string_view</td>          <td class="paramname"><span class="paramname"><em>data</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Display the data. </p>
+<dl class="section note"><dt>Note</dt><dd>Invoking this method may not apply the changes immediately unless <code>flush</code> is called. </dd></dl>
+
+<p>Implemented in <a class="el" href="classyq_1_1contains__stream__output__handler.html#ae0c78e7804f1faa2789fb5db4717d418">yq::contains_stream_output_handler&lt; Os &gt;</a>, <a class="el" href="classyq_1_1contains__stream__output__handler.html#ae0c78e7804f1faa2789fb5db4717d418">yq::contains_stream_output_handler&lt; std::ofstream &gt;</a>, <a class="el" href="classyq_1_1contains__stream__output__handler.html#ae0c78e7804f1faa2789fb5db4717d418">yq::contains_stream_output_handler&lt; std::ostringstream &gt;</a>, and <a class="el" href="classyq_1_1stream__output__handler_3_01std_1_1ostream_01_4.html#a53b14b0e78a54bec5027e0687124215b">yq::stream_output_handler&lt; std::ostream &gt;</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>easylog/<a class="el" href="output__handler_8hpp_source.html">output_handler.hpp</a></li>
+<li>easylog/easylog/<a class="el" href="output__handler_8hpp_source.html">output_handler.hpp</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
