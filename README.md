@@ -42,6 +42,15 @@ int main()
 
 # Install / Build
 
+### for unix
+```bash
+git clone https://github.com/Bright-Nabarro/easylog.git
+cd easylog
+cmake -B build
+cmake --build build
+cmake --install build
+```
+
 # TODO
 - [x] Add `CTAD` in template class which use format_string.
 
