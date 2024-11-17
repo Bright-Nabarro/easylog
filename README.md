@@ -51,10 +51,22 @@ cmake --build build
 cmake --install build
 ```
 
+# How to include in cmake
+```cmake
+include(FetchContent)
+FetchContent_Declare(easy_log
+	GIT_REPOSITORY https://github.com/Bright-Nabarro/easylog.git
+	GIT_TAG "<release tag or main>"
+)
+FetchContent_MakeAvailable(easy_log)
+```
+
 # TODO
 - [x] Add `CTAD` in template class which use format_string.
 
 - [x] Separate output in single module.
+
+- [ ] Logwrap test may cause raised.
 
 - [ ] Throw exception in fatal error in static way
 
