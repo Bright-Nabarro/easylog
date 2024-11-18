@@ -13,6 +13,8 @@
 #include <format>
 #include <memory>
 
+#include "log_base.hpp"
+
 namespace yq
 {
 
@@ -123,8 +125,7 @@ public:
 		contains_stream_output_handler { std::ofstream(sv.data()) }
 	{
 		if (!m_os)
-			throw std::runtime_error{std::format(
-				"fstream construct error with file_path {} ", sv.data())};
+			exception_handle<std::runtime_error>(std::format("fstream construct error with file_path {} ", sv.data()));
 	}
 };
 

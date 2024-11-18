@@ -16,3 +16,5 @@ target_compile_options(all_disable PRIVATE
 	-DNO_YQ_LOG
 )
 
+ShellTest(fatal_test fatal_test/main.cpp ${dir}/fatal_test)
+

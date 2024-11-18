@@ -27,7 +27,7 @@ public:
 	virtual void check_fatal(log_level level)
 	{
 		if (level == log_level::fatal)
-			throw log_fatal_error{};
+			exception_handle<log_fatal_error>();
 	}
 	virtual void change_output(std::unique_ptr<base_output_handler> uptr_os
 		= std::make_unique<stream_output_handler<std::ostream>>())
@@ -65,7 +65,7 @@ public:
 		{
 			end_running();
 			m_thd.join();
-			throw log_fatal_error{};
+			exception_handle<log_fatal_error>();
 		}
 	}
 

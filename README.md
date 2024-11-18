@@ -11,7 +11,7 @@ Document: [chick this](https://bright-nabarro.github.io/easylog/index.html)
 int main()
 {
     yq::info("hello {} !", "easylog");
-    yq::info(qy::loc, "yq::loc trick file,line,function location");
+    yq::info(yq::loc(), "yq::loc() trick file,line,function location");
     yq::debug("debug message canbe disable by NDEBUG macro");
     yq::warn("warnning msg");
     yq::error("error msg");
@@ -65,8 +65,6 @@ FetchContent_MakeAvailable(easy_log)
 - [x] Add `CTAD` in template class which use format_string.
 
 - [x] Separate output in single module.
-
-- [ ] Logwrap test may cause raised.
 
 - [ ] Throw exception in fatal error in static way
 
