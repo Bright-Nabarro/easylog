@@ -65,7 +65,7 @@ concept DescribeException = requires(const char* msg)
 };
 
 template<DescribeException Exception>
-void exception_handle(std::string_view msg = "") 
+void exception_handle([[maybe_unused]] std::string_view msg = "") 
 {
 #ifdef __cpp_exceptions
 	throw Exception{msg.data()};
